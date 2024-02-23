@@ -231,7 +231,86 @@ def plot_shadows(self):
             else:
                 raise Exception("Shadows are only implemented for 3D systems.")
 
+def plot_set_scene_properties(self, **kwargs):
+        """
+        Sets the properties of the scene for a plot.
+        """
+        if self.dim == 3:
+            
+            Delta_x = (self.xmax - self.xmin)/5
+            Delta_y = (self.ymax - self.ymin)/5
+            Delta_z = (self.zmax - self.zmin)/5
 
+            color = (0.764,0.922,0.969)
+            opacity = 0.5
+
+            for i in range(5):
+                for j in range(5):
+                    # Define the range for the grid
+                    x_range =np.array([self.xmin+i*Delta_x+self.dx,self.xmin+(i+1)*Delta_x-self.dx])
+                    y_range =np.array([self.ymin+j*Delta_y+self.dy,self.ymin+(j+1)*Delta_y-self.dy])
+                    x, y = np.meshgrid(x_range, y_range)
+
+                    # Height of the grid (z-coordinates)
+                    z = np.zeros_like(x)+self.zmin
+
+                    # Plot the grid as a flat surface
+                    grid_surf = mlab.mesh(x, y, z, color=color,opacity=opacity)
+
+            for i in range(5):
+                for j in range(5):
+                    # Define the range for the grid
+                    x_range =np.array([self.xmin+i*Delta_x+self.dx,self.xmin+(i+1)*Delta_x-self.dx])
+                    z_range =np.array([self.zmin+j*Delta_z+self.dz,self.zmin+(j+1)*Delta_z-self.dz])
+
+                    x, z = np.meshgrid(x_range, z_range)
+
+                    # Height of the grid (z-coordinates)
+                    y = np.zeros_like(x) + self.ymax
+
+                    # Plot the grid as a flat surface
+                    grid_surf = mlab.mesh(x, y, z, color=color,opacity=opacity)
+
+            for i in range(5):
+                for j in range(5):
+                    # Define the range for the grid
+                    y_range =np.array([self.ymin+i*Delta_y+self.dy,self.ymin+(i+1)*Delta_y-self.dy])
+                    z_range =np.array([self.zmin+j*Delta_z+self.dz,self.zmin+(j+1)*Delta_z-self.dz])
+
+                    y, z = np.meshgrid(y_range, z_range)
+
+                    # Height of the grid (z-coordinates)
+                    x = np.zeros_like(y) + self.zmin
+
+                    # Plot the grid as a flat surface
+                    grid_surf = mlab.mesh(x, y, z, color=color,opacity=opacity)
+            
+            #Create axes:
+            # Define the vertices of the cube
+            vertices = np.array([self.xmin, self.ymin, self.zmin]) \
+                            +np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0],
+                                [0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]])\
+                                    *np.array([self.xmax-self.xmin, self.ymax-self.ymin, self.zmax-self.zmin])
+
+            # Define the triangles that make up the six faces of the cube
+            # Each face is made up of 2 triangles
+            faces = np.array([[0, 1, 2], [0, 2, 3],  # Bottom
+                                [4, 5, 6], [4, 6, 7],  # Top
+                                [0, 1, 5], [0, 5, 4],  # Side
+                                [2, 3, 7], [2, 7, 6],  # Opposite side
+                                [0, 3, 7], [0, 7, 4],  # Front
+                                [1, 2, 6], [1, 6, 5]]) # Back
+
+            # Extract the x, y, z coordinates from vertices
+            x, y, z = vertices.T
+
+            # Use mlab.triangular_mesh to plot the triangles
+            cube = mlab.triangular_mesh(x, y, z, faces, opacity=0)
+            axes = mlab.axes(xlabel='x/a0', ylabel='y/a0', zlabel='z/a0', 
+                    nb_labels=6)
+
+            mlab.view(-45,60)
+            mlab.gcf().scene.reset_zoom()
 
             
     def plot_angle_field(self, field, ax=None, colorbar=True):
